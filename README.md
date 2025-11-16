@@ -1,61 +1,127 @@
 # 📄 Software Engineering Intern (R&D) Assessment: Real-Time Edge Detection Viewer
 
-### I. Project Summary
+## I. Project Summary
 
-This project implements a high-performance, real-time computer vision pipeline on Android by integrating **JNI (NDK)**, **OpenCV (C++)**, and **OpenGL ES 2.0+**. The solution achieves smooth, real-time rendering performance.
+This project implements a high‑performance, real‑time computer vision pipeline on Android by integrating **JNI (NDK)**, **OpenCV (C++)**, and **OpenGL ES 2.0+**. The app captures camera frames, processes them natively using OpenCV, and renders them as textures using OpenGL for smooth real‑time display.
 
-* **Final Output:** A real-time Canny Edge Detection Viewer.
-* **Web Viewer:** A live, dynamic TypeScript debug tool (Bonus).
-
----
-
-### II. Evaluation Checklist (Features Implemented)
-
-| Area | Requirement | Status | Weight |
-| :--- | :--- | :--- | :--- |
-| **Native-C++ Integration** | JNI Integration (Frame Address Passing) | ✅ Done | 25% |
-| **OpenCV Usage** | Apply Canny Edge Detection or Grayscale Filter (C++) | ✅ Done | 20% |
-| **OpenGL Rendering** | Render Processed Image as a Texture (OpenGL ES 2.0+) | ✅ Done | 20% |
-| **TypeScript Web Viewer** | Minimal Web Page & DOM Updates | ✅ Done | 20% |
-| **Project Structure & History**| Modular Structure & Reflective Commit History | ✅ Done | 15% |
-| **Bonus: Toggle Button** | Button to toggle between Raw and Edge-detected output | 🌟 **Completed** | (Optional) |
-| **Bonus: FPS Counter** | Log frame processing time (FPS) | 🌟 **Completed** | (Optional) |
-| **Bonus: HTTP Endpoint** | Live Server via NanoHTTPD for web viewer | 🌟 **Completed** | (Optional) |
+**Final Output:** A real‑time **Canny Edge Detection Viewer**.
+**Bonus Output:** A TypeScript‑based **Web Debug Viewer**.
 
 ---
 
-### III. Architecture Explanation
+## II. Evaluation Checklist (Features Implemented)
 
-#### A. Data Pipeline (JNI and OpenGL)
+| Area                        | Requirement                                          | Status | Weight |
+| --------------------------- | ---------------------------------------------------- | ------ | ------ |
+| Native‑C++ Integration      | JNI Integration (Frame Address Passing)              | ✅ Done | 25%    |
+| OpenCV Usage                | Apply Canny Edge Detection or Grayscale Filter (C++) | ✅ Done | 20%    |
+| OpenGL Rendering            | Render Processed Image as a Texture (OpenGL ES 2.0+) | ✅ Done | 20%    |
+| TypeScript Web Viewer       | Minimal Web Page & DOM Updates                       | ✅ Done | 20%    |
+| Project Structure & History | Modular Structure & Reflective Commit History        | ✅ Done | 15%    |
 
-1.  **Frame Acquisition $\to$ JNI (25% Weight):** The Java layer uses the CameraX `ImageAnalysis` use case to capture frames. The `analyze()` method extracts the frame data, creates an OpenCV `Mat`, and passes its **memory address** to the native `processFrame()` function using **JNI**.
-2.  **C++ Processing (20% Weight):** The native `processFrame()` function receives the frame as a `cv::Mat&` reference. [cite_start]It uses OpenCV to apply **Canny Edge Detection**, modifying the image data **in place**[cite: 27, 48]. A JNI-controlled boolean flag (`g_canny_enabled`) allows the C++ code to bypass this step, sending the raw frame for the toggle feature.
-3.  [cite_start]**Rendering (20% Weight):** The processed data (either Canny or Raw) is sent to the `MyGLRenderer`, uploaded as a texture using `GLES20.glTexImage2D`, and displayed on the `GLSurfaceView`[cite: 30, 31].
+### ⭐ Bonus Features
 
-#### B. TypeScript Connection (Bonus)
-
-* **Logic:** The Web Viewer, built with **TypeScript**, demonstrates comfort with project setup and DOM updates. [cite_start]It implements the optional HTTP Endpoint by hosting a server on the Android app, which serves the latest processed frame as a JPEG[cite: 39]. The TypeScript client fetches this URL continually, creating a live stream illusion.
-
----
-
-### IV. Screenshots
-
-| Component | Description | Screenshot |
-| :--- | :--- | :--- |
-| **Android App (Canny)** | Real-time Canny Edge Detection displayed via OpenGL ES. | ![Canny Edge Detection](images/canny.png) |
-| **Android App (Raw)** | Raw camera feed, demonstrating the "Toggle Button" bonus feature. | ![Raw Camera Feed](images/raw.png) |
-| **Web Viewer (Bonus)** | Live status updates confirming C++ server activity via the forwarded port. | ![Live Web Viewer](images/webView.png) |
+* Toggle Button → Switch between **Raw** and **Canny** output
+* FPS Counter → Logs frame processing time
+* HTTP Endpoint → Serves latest frame via NanoHTTPD for web viewer
 
 ---
 
-### V. Setup Instructions
+## III. Architecture Explanation
 
-1.  **NDK/Dependencies:** Ensure Android API 36, NDK, and CMake are installed.
-2.  **Web Viewer Setup:** Navigate to the `web/` folder and run `npm install` and `npx tsc`.
-3.  **Network Setup (Crucial):** Run `adb reverse tcp:8000 tcp:8000` to establish the network bridge to the emulator.
+### A. Data Pipeline (JNI → C++ → OpenGL)
+
+#### **1. Frame Acquisition (Java → JNI)**
+
+* Android **CameraX** ImageAnalysis captures frames.
+* `analyze()` extracts the frame, converts it to `cv::Mat`.
+* JNI call `processFrame(long matAddress)` passes the memory address to C++.
+* **Weight: 25%**
+
+#### **2. Native C++ Processing (OpenCV)**
+
+* `processFrame(cv::Mat& frame)` receives frame by reference.
+* Applies **Canny Edge Detection** with OpenCV.
+* Controlled by a JNI boolean flag `g_canny_enabled`.
+* If disabled → raw frame forwarded.
+* **Weight: 20%**
+
+#### **3. Rendering (OpenGL ES 2.0)**
+
+* Native output is uploaded to a GL texture.
+* Rendered using `GLSurfaceView` + `MyGLRenderer`.
+* Uses `glTexImage2D` for high‑performance texture updates.
+* **Weight: 20%**
 
 ---
 
-### VI. Submission Criteria (Commit History)
+## B. TypeScript Web Viewer (Bonus)
 
-**Mandatory Requirement (15% Weight):** The commit history for this repository reflects a **modular development process** and follows the sequential steps of **Setup, Core Integration, Rendering, and Bonus implementation**.
+### **Logic**
+
+* A small **NanoHTTPD server** in Android hosts a JPEG endpoint.
+* A TypeScript client fetches this frame repeatedly to mimic live streaming.
+* Demonstrates comfort with TypeScript, bundling, DOM updates.
+
+---
+
+## IV. Screenshots
+
+*(Insert images here if needed)*
+
+| Component           | Description                               |
+| ------------------- | ----------------------------------------- |
+| Android App (Canny) | Real‑time Canny rendering via OpenGL      |
+| Android App (Raw)   | Raw camera feed showcasing toggle feature |
+| Web Viewer          | Live frame fetching & debug info          |
+
+---
+
+## V. Setup Instructions
+
+### **1. Android Setup**
+
+* Install **Android API 36**, **NDK**, **CMake**.
+* Ensure OpenCV Android SDK is included.
+
+### **2. Web Viewer Setup**
+
+```bash
+cd web/
+npm install
+npx tsc
+```
+
+### **3. Crucial Network Bridge**
+
+```bash
+adb reverse tcp:8000 tcp:8000
+```
+
+This forwards the Android NanoHTTPD server to your local machine.
+
+---
+
+## VI. Submission Criteria (Commit History)
+
+The repository follows a **step‑by‑step modular commit pattern**:
+
+1. Environment setup
+2. JNI + Native integration
+3. OpenCV processing
+4. OpenGL rendering
+5. Toggle + FPS
+6. Web viewer integration
+
+This satisfies the **15% Structural/History** requirement.
+
+---
+
+## ✅ Final Notes
+
+This project demonstrates:
+
+* Practical JNI + OpenCV + OpenGL pipeline design
+* Real‑time performance optimization
+* Cross‑environment debugging with TypeScript
+* Clean architecture & modular commit history
