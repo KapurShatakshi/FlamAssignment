@@ -67,6 +67,14 @@ This project implements a high‑performance, real‑time computer vision pipeli
 
 ## IV. Screenshots
 
+### 📸 Preview Images
+
+Below are the primary outputs of the application:
+
+| Canny Output               | Raw Output             | Web Viewer                        |
+| -------------------------- | ---------------------- | --------------------------------- |
+| ![Canny](images/canny.png) | ![Raw](images/raw.png) | ![Web Viewer](images/webView.png) |
+
 *(Insert images here if needed)*
 
 | Component           | Description                               |
